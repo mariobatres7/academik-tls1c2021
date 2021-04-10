@@ -1,0 +1,66 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <h:head>
+        <title>Agregar Jugador</title>
+
+        <style type="text/css">
+            h1 {font-size: 60px;}
+        </style>
+    </h:head>
+    <h:body>
+
+        <h1>Agregar Jugador</h1>
+
+        <h:form id="form">
+
+            <p:messages />
+
+            <p:panelGrid columns="2">
+
+                <p:outputLabel for="nombreInputText" value="Nombre:" />                    
+
+                <p:inputText id="nombreInputText" 
+                             value="#{jugadorControlador.jugador.nombre}" 
+                             required="true"
+                             requiredMessage="Campo 'Nombre' es obligatorio."/>
+
+
+                <p:outputLabel for="fechaNacimientoDatePicker" value="Fecha Nacimiento:" />                    
+
+                <p:datePicker id="fechaNacimientoDatePicker" 
+                              value="#{jugadorControlador.jugador.fechaNacimiento}" 
+                              pattern="dd/MM/yyyy"
+                              required="true"
+                              requiredMessage="Campo 'Fecha Nacimiento' es obligatorio."/>
+
+            </p:panelGrid>            
+
+            <p:commandButton value="Agregar"
+                             actionListener="#{jugadorControlador.agregar()}"
+                             process="@form"
+                             update="dataTable @form"
+                             />
+
+        </h:form>
+
+        <div>
+            <p:dataTable id="dataTable"
+                         value="#{jugadorControlador.jugadorList}"
+                         var="jugador">                
+                <p:column headerText="Id">#{jugador.id}</p:column>
+                <p:column headerText="Nombre">#{jugador.nombre}</p:column>                
+                <p:column headerText="Fecha de Nacimiento">
+                    <h:outputText value="#{jugador.fechaNacimiento}">
+                        <f:convertDateTime pattern="dd/MM/yyyy"/>
+                    </h:outputText>                    
+                </p:column>                
+            </p:dataTable>
+        </div>
+    </h:body>
+</html>
+
