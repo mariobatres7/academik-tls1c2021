@@ -2,11 +2,16 @@ package edu.telus.primerjpa.modelo;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 /**
@@ -20,7 +25,7 @@ public class Equipo implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private Integer id;
+    private Long id;
 
     @Column(name = "nombre")
     private String nombre;
@@ -28,11 +33,20 @@ public class Equipo implements Serializable {
     @Column(name = "direccion")
     private String direccion;
 
-    public Integer getId() {
+    @Column(name = "creado_el")
+    private LocalDateTime creadoEl;
+
+    /*@Column(name = "pais_id")
+    private Integer paisId;*/
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @JoinColumn(name = "pais_id", referencedColumnName = "id")
+    private Pais pais;
+
+    public Long getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -50,6 +64,22 @@ public class Equipo implements Serializable {
 
     public void setDireccion(String direccion) {
         this.direccion = direccion;
+    }
+
+    public LocalDateTime getCreadoEl() {
+        return creadoEl;
+    }
+
+    public void setCreadoEl(LocalDateTime creadoEl) {
+        this.creadoEl = creadoEl;
+    }
+
+    public Pais getPais() {
+        return pais;
+    }
+
+    public void setPais(Pais pais) {
+        this.pais = pais;
     }
 
     @Override
@@ -76,7 +106,7 @@ public class Equipo implements Serializable {
 
     @Override
     public String toString() {
-        return "Equipo{" + "id=" + id + ", nombre=" + nombre + ", direccion=" + direccion + '}';
+        return "Equipo{" + "id=" + id + ", nombre=" + nombre + ", direccion=" + direccion + ", creadoEl=" + creadoEl + '}';
     }
 
 }
