@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.IntStream;
 
 /**
  *
@@ -130,12 +131,11 @@ public class Main {
                 + "	, jl.creado_el_time\n"
                 + "from jugador_log as jl \n"
                 + "inner join jugador as j on j.id = jl.jugador_id\n";
-              //  + "where jl.jugador_id = ?";
+        //  + "where jl.jugador_id = ?";
 
         try (PreparedStatement stmt = connection.prepareStatement(queryString)) {
 
             //stmt.setInt(1, 6);
-
             try (ResultSet rs = stmt.executeQuery()) {
 
                 while (rs.next()) {

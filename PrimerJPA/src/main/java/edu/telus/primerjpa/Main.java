@@ -4,6 +4,11 @@ import edu.telus.primerjpa.modelo.Equipo;
 import edu.telus.primerjpa.modelo.EquipoFinanciero;
 import edu.telus.primerjpa.modelo.Equipo_;
 import edu.telus.primerjpa.modelo.Pais;
+import edu.telus.primerjpa.modelo.Perfil;
+import edu.telus.primerjpa.modelo.PerfilRol;
+import edu.telus.primerjpa.modelo.PerfilRolPK;
+import edu.telus.primerjpa.modelo.PerfilRol_;
+import edu.telus.primerjpa.modelo.Usuario;
 import edu.telus.primerjpa.modelo.wrapper.EquipoWrapper1;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
@@ -11,11 +16,13 @@ import jakarta.persistence.NonUniqueResultException;
 import jakarta.persistence.Persistence;
 import jakarta.persistence.Tuple;
 import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaDelete;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  *
@@ -228,30 +235,121 @@ public class Main {
         EntityManager entityManager = Persistence.createEntityManagerFactory("PrimerJPA_PU")
                 .createEntityManager();
 
-        //buscarEquiposPorCriteria(entityManager);
-        /* CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+        try {
+            entityManager.getTransaction().begin();
 
-        CriteriaQuery<Pais> query = builder.createQuery(Pais.class);
+            Long perfilId = 3L;
+            Long[] rolesAAsignar = {1L, 2L};
 
-        query.from(Pais.class);
+            CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+
+            CriteriaDelete<PerfilRol> queryDelete = builder.createCriteriaDelete(PerfilRol.class);
+
+            Root<PerfilRol> root = queryDelete.from(PerfilRol.class);
+
+            if (rolesAAsignar.length > 0) {
+                queryDelete.where(
+                        builder.equal(root.get(PerfilRol_.perfil), perfilId),
+                        builder.not(root.get(PerfilRol_.rol).in((Object[]) rolesAAsignar))
+                );
+            } else {
+                queryDelete.where(
+                        builder.equal(root.get(PerfilRol_.perfil), perfilId)
+                );
+            }
+
+            entityManager.createQuery(queryDelete).executeUpdate();
+
+            Stream.of(rolesAAsignar).forEach(rolId -> {
+
+                PerfilRolPK pk = new PerfilRolPK();
+                pk.setPerfilId(perfilId);
+                pk.setRolId(rolId);
+
+                PerfilRol perfilRol = entityManager.find(PerfilRol.class, pk);
+
+                if (perfilRol == null) {
+
+                    perfilRol = new PerfilRol();
+                    perfilRol.setPk(pk);
+                    perfilRol.setAsignadoEl(LocalDateTime.now());
+
+                    entityManager.persist(perfilRol);
+                }
+            });
+
+            entityManager.getTransaction().commit();
+
+        } catch (Exception ex) {
+            entityManager.getTransaction().rollback();
+
+            System.err.println(ex.getMessage());
+        }
+
+        /*
+        PerfilRolPK pk = new PerfilRolPK();
+        pk.setPerfilId(3L);
+        pk.setRolId(1L);
         
-        entityManager.createQuery(query).getResultList().forEach(System.out::println);
-         */
- /*
-        Pais pais = entityManager.find(Pais.class, 1);
-
-        System.out.println(pais);
-
-        System.out.println(pais.getEquipoList());*/
-        Equipo equipo = entityManager.find(Equipo.class, 5L);
+        PerfilRol perfilRol = entityManager.find(PerfilRol.class, pk);
         
-        EquipoFinanciero equipoFinanciero = entityManager.find(EquipoFinanciero.class, equipo.getId());
-        
-        
-        System.out.println(equipo);
-        System.out.println(equipoFinanciero);
+        System.out.println(perfilRol.getAsignadoEl());*/
+ /*  try {
+            entityManager.getTransaction().begin();
+            Perfil perfil = entityManager.find(Perfil.class, 3L);
+            perfil.getPerfilRolSet().forEach(System.out::println);
 
+            Long[] rolesAAsignar = {1L, 2L};
+
+            Stream.of(rolesAAsignar).forEach(rolId -> {
+
+                PerfilRolPK pk = new PerfilRolPK();
+                pk.setPerfilId(perfil.getPerfilId());
+                pk.setRolId(rolId);
+
+                PerfilRol perfilRol = new PerfilRol();
+                perfilRol.setPk(pk);
+                perfilRol.setAsignadoEl(LocalDateTime.now());
+
+                entityManager.persist(perfilRol);
+            });
+
+            entityManager.getTransaction().commit();
+        } catch (Exception ex) {
+            entityManager.getTransaction().rollback();
+
+            System.err.println(ex.getMessage());
+        }*/
         entityManager.close();
 
+        /*        try {
+            entityManager.getTransaction().begin();
+
+            Long[] perfilesAAsingar = {1L, 2L, 3L};
+
+            Usuario usuario = entityManager.find(Usuario.class, 3L);
+
+            usuario.getPerfilSet().clear();
+            
+            Stream.of(perfilesAAsingar)
+                    .map(Perfil::new)
+                    .forEach(usuario.getPerfilSet()::add);
+            
+            /*
+            Stream.of(perfilesAAsingar)
+                    .map(perfilId -> new Perfil(perfilId))                    
+                    .forEach(perfil -> usuario.getPerfilSet().add(perfil));*/
+ /*
+            Stream.of(perfilesAAsingar).forEach(perfilId -> {
+                Perfil perfil = new Perfil(perfilId);  //entityManager.find(Perfil.class, perfilId);
+                usuario.getPerfilSet().add(perfil);
+            });*/
+ /*
+            entityManager.getTransaction().commit();
+        } catch (Exception ex) {
+            entityManager.getTransaction().rollback();
+
+            System.err.println(ex.getMessage());
+        }*/
     }
 }
