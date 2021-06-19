@@ -1,0 +1,64 @@
+<?xml version='1.0' encoding='UTF-8'?><wsdl:definitions xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:tns="http://edu.telus.soap/usuarios" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:ns1="http://schemas.xmlsoap.org/soap/http" name="UsuarioWebservice" targetNamespace="http://edu.telus.soap/usuarios">
+  <wsdl:types>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://edu.telus.soap/usuarios" elementFormDefault="unqualified" targetNamespace="http://edu.telus.soap/usuarios" version="1.0">
+
+  <xs:element name="findUsuarios" type="tns:findUsuarios"/>
+
+  <xs:element name="findUsuariosResponse" type="tns:findUsuariosResponse"/>
+
+  <xs:complexType name="findUsuarios">
+    <xs:sequence/>
+  </xs:complexType>
+
+  <xs:complexType name="findUsuariosResponse">
+    <xs:sequence>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="return" type="tns:usuario"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="usuario">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="contrasenya" type="xs:string"/>
+      <xs:element minOccurs="0" name="email" type="xs:string"/>
+      <xs:element minOccurs="0" name="nombre" type="xs:string"/>
+      <xs:element minOccurs="0" name="usuarioId" type="xs:long"/>
+      <xs:element minOccurs="0" name="usuarioNombre" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+</xs:schema>
+  </wsdl:types>
+  <wsdl:message name="findUsuariosResponse">
+    <wsdl:part element="tns:findUsuariosResponse" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="findUsuarios">
+    <wsdl:part element="tns:findUsuarios" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:portType name="Usuario">
+    <wsdl:operation name="findUsuarios">
+      <wsdl:input message="tns:findUsuarios" name="findUsuarios">
+    </wsdl:input>
+      <wsdl:output message="tns:findUsuariosResponse" name="findUsuariosResponse">
+    </wsdl:output>
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="UsuarioWebserviceSoapBinding" type="tns:Usuario">
+    <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+    <wsdl:operation name="findUsuarios">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="findUsuarios">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="findUsuariosResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="UsuarioWebservice">
+    <wsdl:port binding="tns:UsuarioWebserviceSoapBinding" name="UsuarioPort">
+      <soap:address location="http://localhost:8080/primer-soap/UsuarioWebservice"/>
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

@@ -1,10 +1,68 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Start Page</title>
+        <title>Rest Service</title>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+        <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"></script>
+
+        <script type="text/javascript">
+
+            $(document).ready(function () {
+
+                $("#usuarioButton").click(function (ev) {
+                    ev.preventDefault();
+
+                    $.ajax("http://localhost:8080/primer-rest/v1/usuarios", {
+                        type: "GET",
+                        headers: {"Content-Type": "application/json"},
+                        success: function (usuarioList) {
+
+                            usuarioList.forEach(function (usuario) {
+
+                                let html = $("#table tbody").html();
+
+                                let row = "<tr>";
+                                row += "<td>" + usuario.usuarioId +  "</td>";    
+                                row += "<td>" + usuario.usuarioNombre +  "</td>";    
+                                row += "<td>" + usuario.nombre +  "</td>";    
+                                row += "<td>" + usuario.contrasenya +  "</td>";    
+                                row += "</row>";
+                                
+                                $("#table tbody").html(html + row);
+                            });
+
+                        },
+                        error: function (e) {
+                            alert("Error:" + e);
+                        }
+                    });
+
+                });
+
+            });
+        </script>        
     </head>
     <body>
-        <h1>Hello World!</h1>
+
+        <button id="usuarioButton">obtener usuarios</button>
+
+        <table id="table">
+
+            <thead>
+                <tr>
+                    <th>Usuario Id</th>
+                    <th>Usuario</th>
+                    <th>Nombre</th>
+                    <th>Contraseña</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+            </tbody>
+
+        </table>
+
     </body>
 </html>

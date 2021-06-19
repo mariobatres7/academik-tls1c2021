@@ -1,4 +1,4 @@
-package edu.telus.primer.rest.model;
+package edu.telus.primer.soap.model;
 
 import jakarta.json.bind.annotation.JsonbProperty;
 import jakarta.json.bind.annotation.JsonbTransient;
@@ -15,6 +15,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import jakarta.xml.bind.annotation.XmlTransient;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -42,7 +43,7 @@ public class Usuario implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "usuario_id")
-    @JsonbProperty("usuarioId")
+    @JsonbProperty("usuario-id")
     private Long usuarioId;
 
     @NotNull(message = "El campo nombre es requerido.")
@@ -58,19 +59,21 @@ public class Usuario implements Serializable {
 
     @Size(min = 8, max = 20, message = "Tamaño de nombre de usuario no válido.")
     @Column(name = "usuario_nombre")
-    @JsonbProperty("usuarioNombre")
+    @JsonbProperty("usuario-nombre")
     private String usuarioNombre;
 
     @Email(message = "No es un correo válido.")
     @Transient
     private String email;
     
+    /*
+    @XmlTransient
     @JsonbTransient // Esto es para ignorarlo en el json 
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.PERSIST)
-    private List<UsuarioLog> usuarioLogList;
+    private List<UsuarioLog> usuarioLogList;*/
 
     public Usuario() {
-        this.usuarioLogList = new ArrayList<>();
+      //  this.usuarioLogList = new ArrayList<>();
     }
 
 }
