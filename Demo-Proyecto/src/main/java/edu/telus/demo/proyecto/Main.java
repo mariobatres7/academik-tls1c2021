@@ -2,12 +2,23 @@ package edu.telus.demo.proyecto;
 
 import com.opencsv.CSVParser;
 import com.opencsv.bean.CsvToBeanBuilder;
+import edu.telus.demo.proyecto.converter.PersonaDTOConverter;
+import edu.telus.demo.proyecto.converter.ProfesionDTOConverter;
+import edu.telus.demo.proyecto.dominio.Persona;
+import edu.telus.demo.proyecto.dominio.Profesion;
 import edu.telus.demo.proyecto.dto.NameBasicsDTO;
 import edu.telus.demo.proyecto.dto.TitleBasicsDTO;
+import edu.telus.demo.proyecto.repositorio.PersonaRepositorio;
+import edu.telus.demo.proyecto.repositorio.ProfesionRepositorio;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.Persistence;
 
 import java.io.*;
 import java.nio.charset.Charset;
+import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  *
@@ -17,7 +28,7 @@ public class Main {
 
     public static class ArchivoControlador {
 
-        private static final int MAX = 5000;
+        private static final int MAX = 50;
 
         private int intLine = 0;
 
@@ -79,8 +90,7 @@ public class Main {
         public <T> List<T> parse(Class<T> clazz, File input) throws IOException {
 
             try (FileInputStream bais = new FileInputStream(input)) {
-                try (Reader reader = new InputStreamReader
-                        (this.getInputStream(bais), Charset.forName("UTF-8"))) {
+                try (Reader reader = new InputStreamReader(this.getInputStream(bais), Charset.forName("UTF-8"))) {
                     return new CsvToBeanBuilder<T>(reader)
                             .withType(clazz)
                             .withIgnoreLeadingWhiteSpace(true)
@@ -93,7 +103,7 @@ public class Main {
         }
     }
 
-    public static void main(String[] args) {
+    public static void main2(String[] args) {
 
         try {
             File nameBasicsInput = new File("/home/shaka/workspace/Nabenik/Academik/1C2021-JavaWeb/imdb/name.basics.tsv");
@@ -143,5 +153,75 @@ public class Main {
             System.err.println(ex.getMessage());
         }
 
+    }
+
+    public static void main(String[] args) {
+
+        EntityManager entityManager = Persistence.createEntityManagerFactory("DemoProyectoPU")
+                .createEntityManager();
+
+        try {
+            File nameBasicsInput = new File("/home/shaka/workspace/Nabenik/Academik/1C2021-JavaWeb/imdb/name.basics.tsv");
+            File nameBasicsOutput = new File("/home/shaka/workspace/Nabenik/Academik/1C2021-JavaWeb/imdb/name.output.tsv");
+
+            ArchivoControlador nameBasicsArchivoControlador = new ArchivoControlador();
+            nameBasicsArchivoControlador.realizarLectura(nameBasicsInput);
+            nameBasicsArchivoControlador.exportarDatos(nameBasicsOutput);
+
+            DTOParser dtoParser = new DTOParser();
+
+            List<NameBasicsDTO> nameBasicsDTOList = dtoParser
+                    .parse(NameBasicsDTO.class, nameBasicsOutput);
+
+            entityManager.getTransaction().begin();
+
+            PersonaRepositorio personaRepositorio = new PersonaRepositorio(entityManager);
+
+            PersonaDTOConverter personaDTOConverter = new PersonaDTOConverter();
+
+            ProfesionRepositorio profesionRepositorio = new ProfesionRepositorio(entityManager);
+
+            ProfesionDTOConverter profesionDTOConverter = new ProfesionDTOConverter();
+
+            List<Profesion> profesionList = profesionRepositorio.buscarProfesiones();
+
+            nameBasicsDTOList.stream().forEach(dto -> {
+
+                List<Profesion> profesionDtoList = profesionDTOConverter.convertir(dto);
+
+                Set<Profesion> personaProfesionSet = new HashSet<>();
+
+                profesionDtoList.stream().forEach(profesionNuevo -> {
+
+                    profesionList
+                            .stream()
+                            .filter(p -> p.getNombre().equalsIgnoreCase(profesionNuevo.getNombre()))
+                            .findFirst()
+                            .ifPresentOrElse(p -> {
+                                personaProfesionSet.add(p);
+                            }, () -> {
+                                
+                                profesionRepositorio.crearOrActualizarProfesion(profesionNuevo);
+                                profesionList.add(profesionNuevo);
+                                
+                                personaProfesionSet.add(profesionNuevo);
+                            });                    
+                });
+
+                Persona persona = personaDTOConverter.convertir(dto);
+                persona.setProfesionSet(personaProfesionSet);                
+                personaRepositorio.crearOActualizarPersona(persona);
+
+            });
+
+            entityManager.getTransaction().commit();
+
+        } catch (Exception ex) {
+            System.err.println(ex.getMessage());
+
+            entityManager.getTransaction().rollback();
+        } finally {
+            entityManager.close();
+        }
     }
 }
