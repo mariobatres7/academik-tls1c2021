@@ -23,6 +23,10 @@ import lombok.ToString;
 @ToString(of = "tituloId")
 public class PersonaTitulo implements Serializable {
 
+    public static final int ACTORES_ACTRICES = 1;
+    public static final int DIRECTORES = 2;
+    public static final int ESCRITORES = 3;    
+    
     @Id
     @Column(name = "persona_id")
     private Long personaId;

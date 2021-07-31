@@ -4,21 +4,30 @@ import com.opencsv.CSVParser;
 import com.opencsv.bean.CsvToBeanBuilder;
 import edu.telus.demo.proyecto.converter.PersonaDTOConverter;
 import edu.telus.demo.proyecto.converter.ProfesionDTOConverter;
+import edu.telus.demo.proyecto.converter.TituloDTOConverter;
 import edu.telus.demo.proyecto.dominio.Persona;
+import edu.telus.demo.proyecto.dominio.PersonaTitulo;
 import edu.telus.demo.proyecto.dominio.Profesion;
+import edu.telus.demo.proyecto.dominio.Titulo;
 import edu.telus.demo.proyecto.dto.NameBasicsDTO;
 import edu.telus.demo.proyecto.dto.TitleBasicsDTO;
+import edu.telus.demo.proyecto.dto.TitleCrewDTO;
 import edu.telus.demo.proyecto.repositorio.PersonaRepositorio;
+import edu.telus.demo.proyecto.repositorio.PersonaTituloRepositorio;
 import edu.telus.demo.proyecto.repositorio.ProfesionRepositorio;
+import edu.telus.demo.proyecto.repositorio.TituloRepositorio;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Persistence;
 
 import java.io.*;
 import java.nio.charset.Charset;
-import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  *
@@ -28,7 +37,7 @@ public class Main {
 
     public static class ArchivoControlador {
 
-        private static final int MAX = 50;
+        private static final int MAX = 1000;
 
         private int intLine = 0;
 
@@ -161,31 +170,52 @@ public class Main {
                 .createEntityManager();
 
         try {
-            File nameBasicsInput = new File("/home/shaka/workspace/Nabenik/Academik/1C2021-JavaWeb/imdb/name.basics.tsv");
+
+            //-------------------------
+            /*  File nameBasicsInput = new File("/home/shaka/workspace/Nabenik/Academik/1C2021-JavaWeb/imdb/name.basics.tsv");
             File nameBasicsOutput = new File("/home/shaka/workspace/Nabenik/Academik/1C2021-JavaWeb/imdb/name.output.tsv");
 
             ArchivoControlador nameBasicsArchivoControlador = new ArchivoControlador();
             nameBasicsArchivoControlador.realizarLectura(nameBasicsInput);
             nameBasicsArchivoControlador.exportarDatos(nameBasicsOutput);
 
+            //--------------------------
+            File titleBasicsInput = new File("/home/shaka/workspace/Nabenik/Academik/1C2021-JavaWeb/imdb/title.basics.tsv");
+            File titleBasicsOutput = new File("/home/shaka/workspace/Nabenik/Academik/1C2021-JavaWeb/imdb/title.output.tsv");
+
+            ArchivoControlador titleBasicsArchivoControlador = new ArchivoControlador();
+            titleBasicsArchivoControlador.realizarLectura(titleBasicsInput);
+            titleBasicsArchivoControlador.exportarDatos(titleBasicsOutput);
+             */
+            //---------------------------
+            //          File titleCrewInput = new File("/home/shaka/workspace/Nabenik/Academik/1C2021-JavaWeb/imdb/title.crew.tsv");
+            File titleCrewOutput = new File("/home/shaka/workspace/Nabenik/Academik/1C2021-JavaWeb/imdb/title.crew.output.tsv");
+
+            //        ArchivoControlador titleCrewArchivoControlador = new ArchivoControlador();
+            //        titleCrewArchivoControlador.realizarLectura(titleCrewInput);
+            //        titleCrewArchivoControlador.exportarDatos(titleCrewOutput);
             DTOParser dtoParser = new DTOParser();
 
-            List<NameBasicsDTO> nameBasicsDTOList = dtoParser
-                    .parse(NameBasicsDTO.class, nameBasicsOutput);
+            //        List<NameBasicsDTO> nameBasicsDTOList = dtoParser.parse(NameBasicsDTO.class, nameBasicsOutput);
+            //        List<TitleBasicsDTO> titleBasicsDTOList = dtoParser.parse(TitleBasicsDTO.class, titleBasicsOutput);
+            List<TitleCrewDTO> titleCrewDTOList = dtoParser.parse(TitleCrewDTO.class, titleCrewOutput);
 
             entityManager.getTransaction().begin();
 
+            //----------------------
             PersonaRepositorio personaRepositorio = new PersonaRepositorio(entityManager);
 
-            PersonaDTOConverter personaDTOConverter = new PersonaDTOConverter();
+            //   PersonaDTOConverter personaDTOConverter = new PersonaDTOConverter();
+            //----------------------
+            //   ProfesionRepositorio profesionRepositorio = new ProfesionRepositorio(entityManager);
+            //   ProfesionDTOConverter profesionDTOConverter = new ProfesionDTOConverter();
+            //   List<Profesion> profesionList = profesionRepositorio.buscarProfesiones();
+            //----------------------
+            TituloRepositorio tituloRepositorio = new TituloRepositorio(entityManager);
 
-            ProfesionRepositorio profesionRepositorio = new ProfesionRepositorio(entityManager);
-
-            ProfesionDTOConverter profesionDTOConverter = new ProfesionDTOConverter();
-
-            List<Profesion> profesionList = profesionRepositorio.buscarProfesiones();
-
-            nameBasicsDTOList.stream().forEach(dto -> {
+            //   TituloDTOConverter tituloDTOConverter = new TituloDTOConverter();
+            //----------------------
+            /*  nameBasicsDTOList.stream().forEach(dto -> {
 
                 List<Profesion> profesionDtoList = profesionDTOConverter.convertir(dto);
 
@@ -200,25 +230,42 @@ public class Main {
                             .ifPresentOrElse(p -> {
                                 personaProfesionSet.add(p);
                             }, () -> {
-                                
+
                                 profesionRepositorio.crearOrActualizarProfesion(profesionNuevo);
                                 profesionList.add(profesionNuevo);
-                                
+
                                 personaProfesionSet.add(profesionNuevo);
-                            });                    
+                            });
                 });
 
                 Persona persona = personaDTOConverter.convertir(dto);
-                persona.setProfesionSet(personaProfesionSet);                
+                persona.setProfesionSet(personaProfesionSet);
                 personaRepositorio.crearOActualizarPersona(persona);
+            });
 
+            titleBasicsDTOList.stream().forEach(dto -> {
+                Titulo titulo = tituloDTOConverter.convertir(dto);
+                tituloRepositorio.crearOrActualizarTitulo(titulo);
+            });*/
+            
+            PersonaTituloRepositorio personaTituloRepositorio = new PersonaTituloRepositorio(entityManager, personaRepositorio);
+            
+            titleCrewDTOList.stream().forEach(dto -> {
+                Titulo titulo = tituloRepositorio.buscarTituloPorCodigo(dto.getTconst());
+
+                if (titulo != null) {
+                    
+                    personaTituloRepositorio.actualizarDirectores(titulo, dto.directorsToArray());                    
+                    personaTituloRepositorio.actualizarEscritores(titulo, dto.writersToArray());
+
+                }
             });
 
             entityManager.getTransaction().commit();
 
         } catch (Exception ex) {
-            System.err.println(ex.getMessage());
 
+            Logger.getLogger("Main").log(Level.SEVERE, "Error", ex);
             entityManager.getTransaction().rollback();
         } finally {
             entityManager.close();

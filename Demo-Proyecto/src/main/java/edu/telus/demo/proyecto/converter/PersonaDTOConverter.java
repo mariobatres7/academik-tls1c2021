@@ -7,26 +7,18 @@ import edu.telus.demo.proyecto.dto.NameBasicsDTO;
  *
  * @author Mario Batres
  */
-public class PersonaDTOConverter implements Converter<Persona, NameBasicsDTO >{
+public class PersonaDTOConverter implements Converter<Persona, NameBasicsDTO> {
 
-    private String convertirAnyo(String year){
-        if (year.equalsIgnoreCase("N")){
-            return null;
-        }
-        
-        return year;
-    }
-    
     @Override
     public Persona convertir(NameBasicsDTO dto) {
-        Persona persona = new Persona();        
+        Persona persona = new Persona();
         persona.setCodigo(dto.getNconst());
         persona.setNombre(dto.getPrimaryName());
-        
-        persona.setAnyoNacimiento(this.convertirAnyo(dto.getBirthYear()));
-        
-        persona.setAnyoFallecimiento(this.convertirAnyo(dto.getDeathYear()));
-        
+
+        persona.setAnyoNacimiento(this.convertirValor(dto.getBirthYear()));
+
+        persona.setAnyoFallecimiento(this.convertirValor(dto.getDeathYear()));
+
         return persona;
     }
 
